@@ -152,7 +152,7 @@ def OMgenphi(r, rtrunc, rhos, rs, alpha, beta, gamma):
 
         p2a = ss.hyp2f1( (2.-gamma)/alpha,(beta-gamma*1.)/alpha, (2.+alpha-gamma)/alpha, -x2**(alpha) )
         p2b = ss.hyp2f1( (2.-gamma)/alpha,(beta-gamma*1.)/alpha, (2.+alpha-gamma)/alpha, -xlim**(alpha) )
-               I2  = (x2**(2-gamma) * p2a - xlim**(2-gamma) * p2b) / (gamma - 2)
+        I2  = (x2**(2-gamma) * p2a - xlim**(2-gamma) * p2b) / (gamma - 2)
 
         p1a = ss.hyp2f1((3.-gamma)/alpha, (beta*1.-gamma)/alpha, (3.+alpha-gamma)/alpha, -x0**alpha)
         p1b = ss.hyp2f1((3.-gamma)/alpha, (beta-gamma)/alpha, (3+alpha-gamma)/alpha,  -x2**alpha)
@@ -173,7 +173,7 @@ def rho_Q(rarr, ra, rs_s, al_s, be_s, ga_s):
 # calculate f(Q) function
 def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
         time_ini = time.time()
-        print 'Calculating f(Q) function... '
+        print('Calculating f(Q) function... ')
 
         ra, rs_s, al_s, be_s, ga_s, rho, rs, alpha, beta, gamma = model_param
         G = 4.302 * 1e-6 # (kpc/m_sun) (km/s)^2
@@ -192,13 +192,13 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
 
         #---------------we want drho/dP over large range of rarr, so use rmax----------------
         t0 = time.time()
-        rarr0 = np.linspace(1e-8, rmax*1, num_rsteps*.5)
-        rarr1 = np.logspace(-5, np.log10(rmax)-0, num_rsteps*.5)
-        rarr2 = np.logspace(-8, np.log10(rmax)-6, num_rsteps*.5)
+        rarr0 = np.linspace(1e-8, rmax*1, int(num_rsteps*.5))
+        rarr1 = np.logspace(-5, np.log10(rmax)-0, int(num_rsteps*.5))
+        rarr2 = np.logspace(-8, np.log10(rmax)-6, int(num_rsteps*.5))
         rarr = np.unique( np.hstack((rarr0, rarr1, rarr2)) )
         rarr = rarr[np.argsort(rarr)]
         Parr = -1*(OMgenphi(rarr, rtrunc, rhos, rs, alpha, beta, gamma)) 
-        #print 'calculate potential time: ', time.time()-t0 
+        #print('calculate potential time: ', time.time()-t0 
 
         # -------- interpolate between rhoQ(r) and Phi(r) -------------------------
         rhoQ = rho_Q(rarr, ra, rs_s, al_s, be_s, ga_s)
@@ -211,7 +211,7 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
         t0 = time.time()
         frhoQ  = PchipInterpolator(Parr_sorted, rhoQ_sorted, extrapolate=False)
         dfrhoQ = frhoQ.derivative()
-        #print "interpolate rhoQ and relative potential time:  ",  time.time()-t0
+        #print("interpolate rhoQ and relative potential time:  ",  time.time()-t0
 
         #-------- calculate G(Q) -------------------------------------------------------
         def G_integrand(u, Q):
@@ -231,7 +231,7 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
                 epsabs=0, epsrel=1.49e-05)[0] for Q in Qarr]
 
         Garr = np.nan_to_num( np.array(Garr) )
-        #print 'G(Q) integrate time: ', time.time()-t0
+        #print('G(Q) integrate time: ', time.time()-t0
 
         #------------ interpolate Qarr and Garr to get f(Q) ----------------------
         Garr = Garr/(np.pi*np.pi* 2**1.5)
@@ -239,7 +239,7 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
         fQ = GQ.derivative() 
         fQarr = fQ(Qarr)
         
-        print '    Finish calculating f(Q). Time used (sec): ', time.time()-time_ini
+        print('    Finish calculating f(Q). Time used (sec): ', time.time()-time_ini)
 
         #-------------------check if f(Q) is negative --> unphysical--------------
         numQ = 20000
@@ -248,8 +248,8 @@ def GQ(model_param, num_rsteps = 1e5, num_Qsteps = 1000):
         num_neg_fQ = sum(fQtest<0)
         neg_Q_fraction = num_neg_fQ / (numQ*1.)
         if neg_Q_fraction >= 0.0001: #len(neg_fQ) > len(Qarr)*.01:
-                print 'This model could be unphysical! please double check'
-                print 'model_param = ', model_param
+                print('This model could be unphysical! please double check')
+                print('model_param = ', model_param)
         #--------------------end check ----------------------------------
 
         return Qarr, fQ, rtrunc
@@ -329,7 +329,7 @@ def OM_sample(model_param, context, samplesize, Phi_table_steps=1e5, GQ_table_st
 
         r_max, fr_max = rprob_max(model_param)
         rmax_index = sum(rarr<r_max)
-        #print 'max_index: ', rmax_index, r_max, fr_max, max(rprob_proposal), len(rprob_proposal)
+        #print('max_index: ', rmax_index, r_max, fr_max, max(rprob_proposal), len(rprob_proposal)
         rprob_proposal = np.array(rprob_proposal)
 
         if (rmax_index>0 and (rmax_index-1 < len(rprob_proposal))):
@@ -373,7 +373,7 @@ def OM_sample(model_param, context, samplesize, Phi_table_steps=1e5, GQ_table_st
                 computeN += auxN
                 eff = acceptN/(computeN*1.0)
                 eff = eff if eff>0 else .01                
-                #print 'sample r', j, computeN, acceptN
+                #print('sample r', j, computeN, acceptN
                 j = j+1
                 if (acceptN >= samplesize):
                         break
@@ -441,14 +441,14 @@ def OM_sample(model_param, context, samplesize, Phi_table_steps=1e5, GQ_table_st
                                         accept = True
                                         j = j+1
                                         if j%100==0:
-                                            print "samples accepted: ", j #, num_guess 
+                                            print("samples accepted: ", j) #, num_guess )
                                         break
                                 else:
                                         null_count = null_count+ 1                                        
 
         samplearr = np.vstack((r_samples,vr_samples,vt_samples))
         samplearr = np.swapaxes(samplearr,0,1)
-        print 'OM sample time (sec): ', time.time()-t0 #, null_count
+        print('OM sample time (sec): ', time.time()-t0) #, null_count
 
         if r_vr_vt:
                 return r_vr_vt_complete(samplearr)
@@ -473,7 +473,7 @@ def rprob_max(model_param):
                 rprob = (r*r)*rhos_s * ((r/rs_s)**-ga_s) * (1+(r/rs_s)**al_s)**((ga_s-be_s)/al_s)
                 return rprob 
 
-        optvar = scipy.optimize.fmin(lambda (r1): -rfun(r1), (rs_s), disp=False)
+        optvar = scipy.optimize.fmin(lambda r1: -rfun(r1), (rs_s), disp=False)
         fmax = rfun(optvar) 
         return optvar, fmax
 
@@ -487,7 +487,7 @@ def Qprob_max(dfGQarr1, Pri):
                 return -result
         x1 = 0
         x2 = Pri
-        optvar = scipy.optimize.fmin(lambda (Q1): Qfun(Q1), (Pri*.9), disp=False)
+        optvar = scipy.optimize.fmin(lambda Q1: Qfun(Q1), (Pri*.9), disp=False)
         #optvar = scipy.optimize.fminbound(Qfun, x1,x2, disp=False)
         fmax = -Qfun(optvar)
         return optvar, fmax
@@ -501,7 +501,7 @@ def r_vr_vt_complete(samplelist):
                 vtarr = samplearr[:,2]
 
         else:   #in case it's empty..
-                print "ERROR: Empty sampleset"
+                print("ERROR: Empty sampleset")
 
         #tranform to the dwarf-galaxy-centered cartesian coordinate
         r  = rarr

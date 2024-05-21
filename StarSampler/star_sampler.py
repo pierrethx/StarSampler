@@ -44,13 +44,13 @@ def impt_sample(model_class, steps, resample_factor, samplesize,
     nA = 0
 
     if nX+nV > 6:
-        print 'We only support a maximum of 6 variables'
+        print('We only support a maximum of 6 variables')
         return
     if (r_vr_vt and r_v)==True:
-        print 'You cannot have both r_vr_vt AND r_v set to True'
+        print('You cannot have both r_vr_vt AND r_v set to True')
         return
     if (Xlim[1] <= Xlim[0] or Vlim[1] <= Vlim[0]):
-        print 'ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits'
+        print('ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits')
 
 
     ans = imptsample(model_class.DF, Xlim, Vlim, nX, nV, nA,
@@ -96,13 +96,13 @@ def rejection_sample(model_class, samplesize, r_vr_vt=False, r_v=False, filename
     nA = 0
 
     if nX+nV > 6:
-        print 'We only support a maximum of 6 variables'
+        print('We only support a maximum of 6 variables')
         return
     if (r_vr_vt and r_v)==True:
-        print 'You cannot have both r_vr_vt AND r_v set to True'
+        print('You cannot have both r_vr_vt AND r_v set to True')
         return
     if (Xlim[1] <= Xlim[0] or Vlim[1] <= Vlim[0]):
-        print 'ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits'
+        print('ERROR: rmax <= rmin or vmax<=vmin, please double check the sample limits')
 
     ans = rejectsample(model_class.DF, Xlim, Vlim, nX, nV, nA,
                 [], [], samplesize, r_vr_vt, r_v, z_vr_vt=False)
@@ -128,9 +128,9 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
         showtime = True
         t0=time.time()
         if showtime:
-                print ' '
-                print 'Using importance sampling... '
-                print '  building proposal step function... '
+                print(' ')
+                print('Using importance sampling... ')
+                print('  building proposal step function... ')
 
         steps = steps+1
         r0 = 1e-9
@@ -143,7 +143,7 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
         #optvar, fmax = getfmax(fprob, Xn, Vn, An, model_param, context, rlim, vlim)
         #optvar = abs(optvar)
         #optvar[0:Xn], optvar[Xn:Vn+Xn], optvar[Vn+Xn:var_num]
-        #print 'fmax is: ', optvar, fmax
+        #print('fmax is: ', optvar, fmax
         
         #build a list of arrays of variables
         gridlist = []
@@ -192,33 +192,33 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
         A = [ Ai-da*0.5 for Ai in mgridlist[Vn+Xn: var_num]]
         fvalues = fprob(X, V) #, model_param, context)
 
-        #print 'max fvalues: ' , max(fvalues.flatten())
+        #print('max fvalues: ' , max(fvalues.flatten())
         fvalues = fvalues + max(fvalues.flatten())*.1 #+ np.amin(fvalues[fvalues>0]) #so that it's non-negative
         parr = fvalues.flatten()
 
         '''
         if (np.all(np.array(max_index)>=0) and np.all(np.array(max_index) < s-1)):
                 flatten_max_index = np.ravel_multi_index(max_index, fvalues.shape)
-                #print 'GOT THROUGH? ', flatten_max_index, fmax
+                #print('GOT THROUGH? ', flatten_max_index, fmax
                 parr[flatten_max_index] = fmax if parr[flatten_max_index]<fmax \
                                                 else parr[flatten_max_index]
         '''
 
         if (np.sum(parr)==0):
-                print "ERROR: DF might be zero everywhere, or try to increase the step size."
-                #print "model param: ", model_param
+                print("ERROR: DF might be zero everywhere, or try to increase the step size.")
+                #print("model param: ", model_param
                 return [[1],[2],[3],[4],[5],[6]]
 
         t1=time.time()
         if showtime:
-                print '  complete proposal function, time used: ', t1-t0, 'sec'
-                print '  start drawing samples...'
+                print('  complete proposal function, time used: ', t1-t0, 'sec')
+                print('  start drawing samples...')
         proptime = t1-t0
 
         #draw from flattened fvalues, that's equivalent to draw from multidimensional fvalues
         #because dx and dv are constant. 
         rN = int(rfactor * samplesize)
-        #print "len of parr negative???? ", parr<0, len(parr)
+        #print("len of parr negative???? ", parr<0, len(parr)
         norm_parr = parr/np.sum(parr)
         index = np.random.choice(np.arange(len(parr)) , size=rN, p = norm_parr)
         ps = parr[index]  #functional value at the drawn index
@@ -242,23 +242,23 @@ def imptsample(fprob, rlim, vlim, Xn, Vn, An,
 
         var1 = np.sum( ((ws-1)**2)/len(ws) )
 
-        print 'Weight Variance: ', np.var(ws), var1
+        print('Weight Variance: ', np.var(ws), var1)
 
         if (sum(ws)==0):
-                print 'ERROR all proposal samples has zero probability >> Exit.'
+                print('ERROR all proposal samples has zero probability >> Exit.')
                 ne = 99
-                #print "model param: ", model_param
+                #print("model param: ", model_param
                 return [[ne],[ne],[ne],[ne],[ne],[ne]]
 
 
-        #print "less than zero!!!??? ", fs[fs<0]
+        #print("less than zero!!!??? ", fs[fs<0]
         auxarr = np.vstack(tuple(varlist))
         samplearr = resample( ws, auxarr, int(samplesize), replace)
 
         if showtime:
-                print '  sampling completed, time used: ', time.time()-t1, 'sec'
-                print 'sample time: ', proptime + time.time()-t1,  'sec'
-                print '------------------------------------'
+                print('  sampling completed, time used: ', time.time()-t1, 'sec')
+                print('sample time: ', proptime + time.time()-t1,  'sec')
+                print('------------------------------------')
 
         if r_vr_vt:
                 return r_vr_vt_complete(samplearr)
@@ -284,8 +284,8 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
         showtime = True
         t0=time.time()
         if showtime:
-                print ' '
-                print 'Using rejection sampling... '
+                print(' ')
+                print('Using rejection sampling... ')
         
 
         var_num = Xn + Vn + An
@@ -295,7 +295,7 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
         vmin, vmax = vlim
 
         optvar, fmax = getfmax(fprob, Xn, Vn, An, model_param, context, rlim, vlim, brute)
-        #print 'fmax is: ', optvar, fmax
+        #print('fmax is: ', optvar, fmax
         #fmax=1e-5
         
         # rejection sampling loop. Pre-evaluate a number of function values to 
@@ -336,7 +336,7 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
                 acceptV.append( uV[:,accept_index] )
                 acceptA.append( uA[:,accept_index] )
 
-                print '  ', j, ' total_points_proposed: ', computeN, ' total_points_accepted: ', acceptN
+                print('  ', j, ' total_points_proposed: ', computeN, ' total_points_accepted: ', acceptN)
                 j=j+1
 
                 if (acceptN >= samplesize):
@@ -351,9 +351,9 @@ def rejectsample(fprob, rlim, vlim, Xn, Vn, An,
         samplearr = np.swapaxes(samplearr,0,1)
 
         if showtime:
-                print "  final acceptance rate: ", eff
-                print '  sample time: ', time.time()-t0, 'sec'
-                print '------------------------------------'
+                print("  final acceptance rate: ", eff)
+                print('  sample time: ', time.time()-t0, 'sec')
+                print('------------------------------------')
 
         if r_vr_vt:
                 return r_vr_vt_complete(samplearr)
@@ -372,7 +372,7 @@ def r_vr_vt_complete(samplelist):
                 vtarr = samplearr[:,2]
 
         else:   #in case it's empty..
-                print "ERROR: Empty sampleset"
+                print("ERROR: Empty sampleset")
 
         #tranform to the dwarf-galaxy-centered cartesian coordinate
         r  = rarr 
@@ -436,7 +436,7 @@ def z_vr_vt_complete(samplelist, context):
                 vtarr = samplearr[:,2]
 
         else:   #in case it's empty..
-                print "ERROR: Empty sampleset"
+                print("ERROR: Empty sampleset")
 
         zsize = len(zarr)
         phi = np.random.random_sample( zsize ) * 2.0 * np.pi
@@ -489,7 +489,7 @@ def getfmax(fprob, Xn, Vn, An, model_param, context, rlim, vlim, brute=True):
 
 
         fmax = 1.0 * fprob(optvar[0:Xn], optvar[Xn:Vn+Xn]) 
-        print 'optvar, max: ', optvar, fmax
+        print('optvar, max: ', optvar, fmax)
 
         return optvar, fmax*1.05 +00 #TODO
 
